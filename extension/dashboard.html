@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="按清单批量获取文献全文，核验浏览器下载结果，并导出未获取全文的文献。">
+  <title>文献全文批量助手</title>
+  <link rel="icon" type="image/png" href="icons/icon-32.png">
+  <link rel="preload" href="fonts/wenxian-serif.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="dashboard.css">
+  <script type="module" src="dashboard.js"></script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><path d="M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></symbol>
+    <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 4v10"/><path d="m8 10 4 4 4-4"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-records" viewBox="0 0 24 24"><path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H17a2 2 0 0 1 2 2v14H6.5A1.5 1.5 0 0 1 5 18.5z"/><path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19"/><path d="M9 8.5h6"/></symbol>
+    <symbol id="i-dedup" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7.5 5.7v12.6a1 1 0 0 0 1.53.85l10-6.3a1 1 0 0 0 0-1.7l-10-6.3a1 1 0 0 0-1.53.85z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5.5 6.2v11.6a.9.9 0 0 0 1.4.75l8.7-5.8a.9.9 0 0 0 0-1.5L6.9 5.45a.9.9 0 0 0-1.4.75z"/><path d="M19 5.5v13"/></symbol>
+    <symbol id="i-retry" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9L4 8.5"/><path d="M4 4v4.5h4.5"/></symbol>
+    <symbol id="i-sweep" viewBox="0 0 24 24"><path d="m5.5 7 5 5-5 5"/><path d="m12.5 7 5 5-5 5"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4l-8.5 8.5"/><path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></symbol>
+    <symbol id="i-rebuild" viewBox="0 0 24 24"><path d="M19.5 10.5a7.6 7.6 0 0 0-13.6-3.4L4.5 8.8"/><path d="M4.5 4.5v4.3h4.3"/><path d="M4.5 13.5a7.6 7.6 0 0 0 13.6 3.4l1.4-1.7"/><path d="M19.5 19.5v-4.3h-4.3"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9.5M18.5 7H20M4 17h3.5M12.5 17H20"/><circle cx="16" cy="7" r="2.3"/><circle cx="10" cy="17" r="2.3"/></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><path d="m5 7.5 4 4-4 4"/><path d="M11.5 17h7.5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/></symbol>
+    <symbol id="i-word" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="m8.6 12 1.3 5 2.1-3.7 2.1 3.7 1.3-5"/></symbol>
+    <symbol id="i-csv" viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M10 4.5v15"/></symbol>
+    <symbol id="i-txt" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M8.5 13h7M8.5 16.5h5"/></symbol>
+    <symbol id="i-failed" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m9.5 9.5 5 5m0-5-5 5"/></symbol>
+    <symbol id="i-json" viewBox="0 0 24 24"><path d="M8.5 4.5H8a2 2 0 0 0-2 2v3a2.5 2.5 0 0 1-2 2.5 2.5 2.5 0 0 1 2 2.5v3a2 2 0 0 0 2 2h.5"/><path d="M15.5 4.5h.5a2 2 0 0 1 2 2v3a2.5 2.5 0 0 0 2 2.5 2.5 2.5 0 0 0-2 2.5v3a2 2 0 0 1-2 2h-.5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l2 2.2h7.4a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15"/><path d="M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2"/><path d="m6.5 7 .9 11.2a2 2 0 0 0 2 1.8h5.2a2 2 0 0 0 2-1.8L17.5 7"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3.5H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-10z"/><path d="M14 3.5v5h5"/><path d="M12 17.5v-6"/><path d="m9.5 14 2.5-2.5 2.5 2.5"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="16" rx="2"/><path d="M9.5 4.5V4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v.5"/><path d="M9 10h6M9 13.5h6M9 17h3.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01"/></symbol>
+  </svg>
+
+  <div class="backdrop" aria-hidden="true">
+    <div class="paper-grid"></div>
+    <svg class="landscape" viewBox="0 0 1600 560" preserveAspectRatio="xMaxYMax slice" focusable="false">
+      <defs>
+        <linearGradient id="mtnFade1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="mtn-stop mtn-stop-1"/><stop offset=".6" class="mtn-stop mtn-stop-mid"/><stop offset="1" class="mtn-stop mtn-stop-end"/></linearGradient>
+        <linearGradient id="mtnFade2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="mtn-stop mtn-stop-2"/><stop offset=".6" class="mtn-stop mtn-stop-mid"/><stop offset="1" class="mtn-stop mtn-stop-end"/></linearGradient>
+        <linearGradient id="mtnFade3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="mtn-stop mtn-stop-3"/><stop offset=".6" class="mtn-stop mtn-stop-mid"/><stop offset="1" class="mtn-stop mtn-stop-end"/></linearGradient>
+        <linearGradient id="mtnFade4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="mtn-stop mtn-stop-4"/><stop offset=".6" class="mtn-stop mtn-stop-mid"/><stop offset="1" class="mtn-stop mtn-stop-end"/></linearGradient>
+        <radialGradient id="moonGlow"><stop offset="0" class="moon-stop moon-stop-core"/><stop offset=".45" class="moon-stop moon-stop-halo"/><stop offset="1" class="moon-stop moon-stop-end"/></radialGradient>
+      </defs>
+      <circle class="moon" cx="1320" cy="118" r="120" fill="url(#moonGlow)"/>
+      <g class="ridges">
+<path class="mtn mtn-1" d="M-24,560L-24,419Q-12,418 -6,419Q0,419 6,420Q12,420 18,420Q24,420 30,419Q36,417 42,417Q48,416 54,416Q60,416 66,417Q72,417 78,416Q84,415 90,415Q96,414 102,414Q108,413 114,414Q120,414 126,413Q132,413 138,412Q144,412 150,411Q156,411 162,411Q168,411 174,411Q180,412 186,412Q192,412 198,411Q204,410 210,410Q216,409 222,410Q228,411 234,413Q240,414 246,415Q252,416 258,417Q264,418 270,418Q276,418 282,419Q288,419 294,418Q300,417 306,417Q312,416 318,417Q324,418 330,418Q336,419 342,419Q348,418 354,417Q360,416 366,416Q372,415 378,415Q384,414 390,414Q396,415 402,414Q408,414 414,415Q420,415 426,416Q432,416 438,416Q444,415 450,414Q456,413 462,415Q468,416 474,417Q480,418 486,417Q492,417 498,417Q504,416 510,417Q516,417 522,417Q528,418 534,419Q540,420 546,421Q552,422 558,421Q564,420 570,419Q576,417 582,418Q588,418 594,418Q600,418 606,416Q612,414 618,412Q624,410 630,411Q636,412 642,412Q648,413 654,411Q660,410 666,410Q672,410 678,410Q684,410 690,410Q696,410 702,410Q708,410 714,410Q720,411 726,410Q732,410 738,409Q744,408 750,406Q756,405 762,405Q768,404 774,404Q780,403 786,403Q792,403 798,403Q804,403 810,401Q816,399 822,396Q828,394 834,390Q840,387 846,382Q852,377 858,373Q864,370 870,364Q876,359 882,353Q888,347 894,341Q900,335 906,329Q912,322 918,314Q924,305 930,296Q936,287 942,278Q948,269 954,261Q960,252 966,252Q972,252 978,253Q984,254 990,257Q996,260 1002,262Q1008,264 1014,261Q1020,258 1026,256Q1032,253 1038,253Q1044,253 1050,252Q1056,250 1062,246Q1068,242 1074,236Q1080,230 1086,222Q1092,214 1098,206Q1104,198 1110,192Q1116,186 1122,180Q1128,175 1134,170Q1140,166 1146,164Q1152,162 1158,158Q1164,153 1170,150Q1176,146 1182,143Q1188,140 1194,145Q1200,150 1206,154Q1212,158 1218,163Q1224,167 1230,174Q1236,181 1242,189Q1248,196 1254,205Q1260,214 1266,222Q1272,231 1278,238Q1284,246 1290,250Q1296,255 1302,260Q1308,264 1314,265Q1320,266 1326,265Q1332,263 1338,258Q1344,253 1350,247Q1356,242 1362,235Q1368,228 1374,222Q1380,217 1386,209Q1392,202 1398,205Q1404,208 1410,216Q1416,224 1422,232Q1428,240 1434,248Q1440,257 1446,268Q1452,278 1458,288Q1464,298 1470,305Q1476,312 1482,319Q1488,326 1494,332Q1500,338 1506,340Q1512,341 1518,340Q1524,338 1530,335Q1536,332 1542,326Q1548,319 1554,311Q1560,304 1566,294Q1572,284 1578,281Q1584,277 1590,288Q1596,298 1602,308Q1608,319 1614,328L1620,337L1620,560Z"/>
+        <path class="mtn mtn-2" d="M-24,560L-24,485Q-14,482 -9,481Q-4,480 1,480Q6,480 11,481Q16,482 21,483Q26,483 31,486Q36,488 41,490Q46,492 51,493Q56,493 61,493Q66,492 71,492Q76,493 81,493Q86,493 91,494Q96,494 101,495Q106,496 111,495Q116,495 121,496Q126,497 131,496Q136,496 141,496Q146,495 151,494Q156,494 161,492Q166,490 171,489Q176,488 181,488Q186,487 191,486Q196,486 201,485Q206,484 211,484Q216,484 221,484Q226,485 231,485Q236,485 241,485Q246,486 251,485Q256,484 261,484Q266,484 271,485Q276,486 281,486Q286,486 291,486Q296,486 301,487Q306,487 311,488Q316,488 321,486Q326,484 331,484Q336,484 341,484Q346,484 351,485Q356,486 361,486Q366,485 371,484Q376,482 381,480Q386,479 391,479Q396,479 401,479Q406,479 411,477Q416,475 421,474Q426,472 431,472Q436,471 441,471Q446,471 451,471Q456,470 461,469Q466,468 471,466Q476,464 481,463Q486,462 491,464Q496,465 501,465Q506,465 511,464Q516,464 521,463Q526,462 531,461Q536,461 541,462Q546,462 551,462Q556,463 561,460Q566,458 571,457Q576,456 581,456Q586,456 591,457Q596,458 601,458Q606,457 611,457Q616,456 621,456Q626,456 631,456Q636,456 641,456Q646,457 651,457Q656,456 661,456Q666,456 671,456Q676,456 681,457Q686,458 691,457Q696,456 701,454Q706,451 711,447Q716,443 721,439Q726,436 731,434Q736,431 741,428Q746,426 751,424Q756,421 761,419Q766,416 771,413Q776,411 781,408Q786,405 791,403Q796,402 801,404Q806,407 811,410Q816,414 821,419Q826,423 831,428Q836,433 841,436Q846,439 851,441Q856,443 861,445Q866,446 871,447Q876,447 881,446Q886,444 891,442Q896,440 901,438Q906,436 911,433Q916,431 921,426Q926,422 931,418Q936,413 941,409Q946,404 951,399Q956,394 961,389Q966,385 971,381Q976,377 981,372Q986,366 991,359Q996,352 1001,345Q1006,338 1011,334Q1016,330 1021,325Q1026,319 1031,314Q1036,308 1041,306Q1046,303 1051,297Q1056,292 1061,295Q1066,298 1071,307Q1076,316 1081,325Q1086,335 1091,342Q1096,350 1101,359Q1106,369 1111,378Q1116,387 1121,394Q1126,402 1131,409Q1136,417 1141,421Q1146,425 1151,425Q1156,426 1161,426Q1166,426 1171,424Q1176,422 1181,416Q1186,409 1191,404Q1196,399 1201,392Q1206,385 1211,377Q1216,369 1221,362Q1226,354 1231,348Q1236,342 1241,334Q1246,327 1251,318Q1256,310 1261,302Q1266,293 1271,284Q1276,275 1281,267Q1286,260 1291,262Q1296,264 1301,267Q1306,270 1311,273Q1316,276 1321,282Q1326,287 1331,294Q1336,300 1341,306Q1346,313 1351,320Q1356,327 1361,335Q1366,342 1371,350Q1376,357 1381,364Q1386,371 1391,377Q1396,384 1401,389Q1406,394 1411,400Q1416,405 1421,410Q1426,414 1431,418Q1436,421 1441,424Q1446,427 1451,429Q1456,430 1461,428Q1466,426 1471,422Q1476,418 1481,412Q1486,407 1491,400Q1496,394 1501,386Q1506,377 1511,370Q1516,363 1521,365Q1526,366 1531,373Q1536,380 1541,386Q1546,393 1551,398Q1556,403 1561,409Q1566,415 1571,421Q1576,427 1581,432Q1586,437 1591,439Q1596,442 1601,445Q1606,448 1611,453L1616,457L1616,560Z"/>
+        <path class="mtn mtn-3" d="M-24,560L-24,512Q-16,512 -12,512Q-8,512 -4,511Q0,511 4,511Q8,512 12,511Q16,511 20,512Q24,513 28,512Q32,512 36,511Q40,510 44,510Q48,510 52,511Q56,511 60,510Q64,509 68,508Q72,507 76,507Q80,507 84,508Q88,509 92,508Q96,508 100,507Q104,506 108,506Q112,505 116,505Q120,505 124,505Q128,504 132,504Q136,505 140,506Q144,507 148,505Q152,504 156,504Q160,504 164,502Q168,501 172,500Q176,499 180,499Q184,498 188,497Q192,496 196,495Q200,493 204,491Q208,489 212,487Q216,486 220,486Q224,486 228,486Q232,486 236,486Q240,485 244,484Q248,484 252,483Q256,482 260,481Q264,480 268,479Q272,478 276,478Q280,477 284,477Q288,478 292,478Q296,478 300,480Q304,482 308,483Q312,483 316,482Q320,481 324,480Q328,479 332,478Q336,477 340,477Q344,477 348,477Q352,476 356,478Q360,480 364,481Q368,483 372,485Q376,487 380,489Q384,491 388,493Q392,495 396,497Q400,500 404,502Q408,504 412,505Q416,506 420,506Q424,507 428,506Q432,505 436,507Q440,509 444,511Q448,513 452,515Q456,517 460,517Q464,517 468,517Q472,517 476,517Q480,517 484,518Q488,519 492,521Q496,522 500,522Q504,523 508,523Q512,523 516,522Q520,521 524,521Q528,521 532,521Q536,522 540,524Q544,525 548,526Q552,527 556,526Q560,526 564,525Q568,525 572,524Q576,523 580,524Q584,525 588,527Q592,530 596,531Q600,532 604,531Q608,530 612,529Q616,528 620,528Q624,527 628,527Q632,526 636,527Q640,528 644,528Q648,527 652,527Q656,527 660,526Q664,525 668,524Q672,522 676,522Q680,523 684,523Q688,524 692,524Q696,524 700,524Q704,524 708,523Q712,521 716,521Q720,520 724,519Q728,518 732,516Q736,514 740,513Q744,512 748,512Q752,513 756,513Q760,514 764,513Q768,513 772,511Q776,510 780,508Q784,506 788,504Q792,501 796,500Q800,499 804,496Q808,493 812,490Q816,487 820,485Q824,482 828,480Q832,478 836,476Q840,473 844,471Q848,468 852,467Q856,465 860,462Q864,459 868,456Q872,453 876,448Q880,443 884,440Q888,438 892,436Q896,433 900,433Q904,434 908,436Q912,439 916,442Q920,445 924,446Q928,448 932,451Q936,453 940,457Q944,460 948,464Q952,468 956,471Q960,474 964,475Q968,477 972,478Q976,480 980,482Q984,484 988,487Q992,489 996,493Q1000,496 1004,500Q1008,503 1012,503Q1016,503 1020,505Q1024,506 1028,505Q1032,505 1036,505Q1040,505 1044,506Q1048,506 1052,506Q1056,505 1060,506Q1064,506 1068,505Q1072,505 1076,503Q1080,502 1084,501Q1088,500 1092,498Q1096,497 1100,494Q1104,492 1108,487Q1112,483 1116,477Q1120,472 1124,466Q1128,460 1132,455Q1136,450 1140,446Q1144,442 1148,438Q1152,435 1156,431Q1160,427 1164,425Q1168,423 1172,425Q1176,427 1180,431Q1184,435 1188,438Q1192,442 1196,445Q1200,448 1204,452Q1208,456 1212,461Q1216,465 1220,471Q1224,477 1228,479Q1232,481 1236,483Q1240,484 1244,486Q1248,488 1252,490Q1256,493 1260,495Q1264,497 1268,498Q1272,499 1276,500Q1280,500 1284,500Q1288,500 1292,496Q1296,492 1300,489Q1304,487 1308,483Q1312,479 1316,475Q1320,472 1324,467Q1328,463 1332,458Q1336,453 1340,449Q1344,445 1348,442Q1352,439 1356,438Q1360,436 1364,433Q1368,430 1372,427Q1376,424 1380,419Q1384,414 1388,410Q1392,406 1396,400Q1400,395 1404,388Q1408,381 1412,375Q1416,368 1420,361Q1424,354 1428,348Q1432,342 1436,334Q1440,326 1444,319Q1448,313 1452,307Q1456,302 1460,302Q1464,302 1468,308Q1472,314 1476,320Q1480,327 1484,334Q1488,342 1492,349Q1496,356 1500,366Q1504,375 1508,382Q1512,390 1516,399Q1520,408 1524,415Q1528,423 1532,430Q1536,436 1540,442Q1544,448 1548,453Q1552,459 1556,464Q1560,469 1564,474Q1568,479 1572,481Q1576,483 1580,485Q1584,488 1588,492Q1592,497 1596,500Q1600,503 1604,506Q1608,509 1612,511Q1616,513 1620,514L1624,514L1624,560Z"/>
+        <path class="mtn mtn-4" d="M-24,560L-24,560Q-17,560 -13,560Q-10,560 -6,560Q-3,560 1,560Q4,560 8,560Q11,560 15,560Q18,560 22,560Q25,560 29,560Q32,560 36,560Q39,560 43,560Q46,560 50,560Q53,560 57,560Q60,560 64,560Q67,560 71,560Q74,560 78,560Q81,560 85,560Q88,560 92,560Q95,559 99,559Q102,560 106,560Q109,560 113,560Q116,560 120,560Q123,560 127,559Q130,559 134,557Q137,555 141,555Q144,555 148,554Q151,554 155,553Q158,552 162,552Q165,551 169,550Q172,550 176,549Q179,549 183,549Q186,549 190,549Q193,549 197,550Q200,550 204,549Q207,548 211,548Q214,548 218,547Q221,546 225,546Q228,546 232,546Q235,546 239,546Q242,545 246,545Q249,544 253,544Q256,544 260,543Q263,543 267,541Q270,539 274,537Q277,536 281,534Q284,532 288,531Q291,531 295,532Q298,533 302,531Q305,530 309,531Q312,531 316,532Q319,532 323,532Q326,532 330,533Q333,533 337,534Q340,534 344,535Q347,536 351,537Q354,539 358,539Q361,540 365,540Q368,540 372,541Q375,542 379,544Q382,545 386,546Q389,548 393,547Q396,547 400,548Q403,549 407,549Q410,549 414,550Q417,550 421,552Q424,554 428,554Q431,553 435,554Q438,554 442,554Q445,554 449,554Q452,555 456,557Q459,559 463,559Q466,558 470,559Q473,559 477,560Q480,560 484,560Q487,560 491,560Q494,560 498,560Q501,560 505,560Q508,560 512,560Q515,560 519,560Q522,560 526,560Q529,560 533,560Q536,560 540,560Q543,560 547,560Q550,560 554,560Q557,560 561,560Q564,560 568,560Q571,560 575,560Q578,560 582,560Q585,560 589,560Q592,560 596,560Q599,560 603,560Q606,560 610,560Q613,560 617,560Q620,560 624,560Q627,560 631,560Q634,560 638,560Q641,560 645,560Q648,560 652,560Q655,560 659,560Q662,560 666,560Q669,559 673,559Q676,558 680,558Q683,557 687,558Q690,559 694,559Q697,559 701,557Q704,556 708,556Q711,555 715,553Q718,551 722,550Q725,549 729,548Q732,547 736,545Q739,543 743,542Q746,542 750,542Q753,542 757,543Q760,544 764,544Q767,544 771,542Q774,540 778,541Q781,541 785,541Q788,540 792,539Q795,538 799,536Q802,534 806,533Q809,532 813,531Q816,529 820,529Q823,529 827,530Q830,530 834,529Q837,528 841,527Q844,527 848,528Q851,530 855,531Q858,533 862,533Q865,533 869,533Q872,533 876,532Q879,531 883,530Q886,530 890,530Q893,530 897,531Q900,532 904,531Q907,530 911,530Q914,530 918,530Q921,530 925,531Q928,531 932,529Q935,528 939,528Q942,529 946,529Q949,529 953,528Q956,528 960,528Q963,528 967,529Q970,530 974,529Q977,529 981,529Q984,529 988,531Q991,532 995,533Q998,535 1002,538Q1005,540 1009,542Q1012,543 1016,543Q1019,543 1023,543Q1026,543 1030,543Q1033,544 1037,543Q1040,543 1044,542Q1047,542 1051,542Q1054,541 1058,544Q1061,547 1065,548Q1068,550 1072,552Q1075,555 1079,557Q1082,559 1086,559Q1089,560 1093,560Q1096,560 1100,560Q1103,560 1107,560Q1110,560 1114,560Q1117,560 1121,560Q1124,560 1128,560Q1131,560 1135,560Q1138,560 1142,560Q1145,560 1149,560Q1152,560 1156,560Q1159,560 1163,560Q1166,560 1170,560Q1173,560 1177,560Q1180,560 1184,560Q1187,560 1191,560Q1194,560 1198,560Q1201,560 1205,560Q1208,560 1212,560Q1215,560 1219,560Q1222,560 1226,560Q1229,560 1233,560Q1236,560 1240,560Q1243,560 1247,560Q1250,560 1254,560Q1257,560 1261,560Q1264,560 1268,560Q1271,560 1275,555Q1278,551 1282,549Q1285,546 1289,541Q1292,537 1296,532Q1299,528 1303,525Q1306,522 1310,519Q1313,516 1317,514Q1320,513 1324,509Q1327,505 1331,501Q1334,497 1338,494Q1341,492 1345,495Q1348,499 1352,500Q1355,501 1359,503Q1362,505 1366,508Q1369,511 1373,514Q1376,518 1380,521Q1383,524 1387,526Q1390,529 1394,532Q1397,534 1401,534Q1404,535 1408,536Q1411,538 1415,539Q1418,540 1422,539Q1425,538 1429,536Q1432,534 1436,533Q1439,532 1443,531Q1446,531 1450,531Q1453,531 1457,529Q1460,528 1464,525Q1467,521 1471,517Q1474,513 1478,509Q1481,504 1485,499Q1488,494 1492,490Q1495,486 1499,484Q1502,482 1506,479Q1509,476 1513,471Q1516,467 1520,460Q1523,453 1527,447Q1530,441 1534,434Q1537,428 1541,423Q1544,418 1548,415Q1551,411 1555,408Q1558,405 1562,398Q1565,390 1569,383Q1572,376 1576,374Q1579,372 1583,376Q1586,380 1590,386Q1593,391 1597,396Q1600,401 1604,408Q1607,414 1611,420Q1614,427 1618,433L1621,440L1621,560Z"/>
+      </g>
+    </svg>
+    <div class="mist mist-a"></div>
+    <div class="mist mist-b"></div>
+    <div class="grain"></div>
+  </div>
+
+  <a class="skip-link" href="#queuePanel">跳到下载队列</a>
+
+  <main id="main">
+    <header class="masthead reveal">
+      <div class="brand">
+        <svg class="seal" viewBox="0 0 60 84" role="img" aria-label="文献印章">
+          <defs>
+            <filter id="sealInk" x="-8%" y="-8%" width="116%" height="116%">
+              <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="9" result="noise"/>
+              <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -7 4.75" result="speckle"/>
+              <feComposite in="SourceGraphic" in2="speckle" operator="in"/>
+            </filter>
+          </defs>
+          <g filter="url(#sealInk)">
+            <path class="seal-body" d="M3.1,3.2L5.9,3.1L8.8,3.1L12.1,3.0L15.2,2.8L18.1,3.2L21.1,2.6L24.0,2.8L27.2,2.8L30.1,3.2L32.9,2.6L36.1,2.7L38.9,2.7L42.0,3.4L44.9,2.6L48.1,2.8L51.0,3.4L53.9,2.9L56.7,3.1L57.2,6.2L57.0,9.1L57.1,11.9L57.1,15.0L56.8,18.1L57.1,20.8L57.4,23.9L56.9,27.1L56.8,29.9L57.3,32.9L57.4,35.8L56.9,39.1L56.8,42.1L56.6,44.8L57.2,48.0L56.8,51.2L56.6,54.1L57.4,56.9L57.0,60.1L57.3,63.0L57.4,66.1L57.0,68.8L56.8,72.0L56.7,74.9L57.2,77.9L56.8,80.8L54.1,81.1L51.0,80.6L47.9,81.4L44.9,81.2L42.1,80.6L39.1,81.4L36.0,80.7L32.9,80.9L29.8,80.9L27.2,80.8L24.1,80.6L21.1,80.6L18.0,81.3L14.9,81.1L11.8,80.9L9.1,80.8L6.1,80.8L2.8,81.2L3.1,78.0L3.2,74.8L3.1,72.1L2.6,68.9L2.9,65.9L3.1,63.2L3.1,60.1L3.2,56.9L2.6,53.9L2.6,50.9L3.4,48.0L2.6,45.1L3.1,41.9L3.4,39.1L3.4,35.9L2.8,33.1L2.8,29.9L3.2,26.8L3.1,24.0L2.8,20.9L3.1,18.1L3.1,15.0L3.2,12.0L3.1,8.9L2.6,5.9Z"/>
+            <text class="seal-text" x="30" y="37" text-anchor="middle">文</text>
+            <text class="seal-text" x="30" y="72" text-anchor="middle">献</text>
+          </g>
+        </svg>
+        <div class="brand-text">
+          <p class="eyebrow" id="versionLabel">LITERATURE LIBRARY · V1.5.0</p>
+          <h1 class="display">文献全文批量助手</h1>
+          <svg class="brush" viewBox="0 0 360 16" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M2 9.6C40 6.2 96 5.1 158 5.6c62 .5 128 1.9 198 .4-.3 1.6-1.1 2.7-2.4 3.3-56 2.3-121 1.9-186 2.1-63 .2-119 1.3-163 2.6-1.7-.9-2.4-2.4-2.2-4.4z"/></svg>
+          <p class="lede">导入题录、DOI 或 PDF 直链，逐条获取全文，核验每一份下载，保留可重试的处理记录。</p>
+        </div>
+      </div>
+      <div class="masthead-side">
+        <span class="badge" id="runBadge">正在读取</span>
+      </div>
+    </header>
+
+    <nav class="feature-nav reveal" aria-label="功能导航">
+      <div class="nav-tabs">
+        <button type="button" class="nav-tab" id="showQueue" data-section="queuePanel" data-heading="queueHeading"><svg class="i" aria-hidden="true"><use href="#i-queue"/></svg><span>下载队列</span></button>
+        <button type="button" class="nav-tab" id="showImport" data-section="importPanel" data-heading="importHeading"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg><span>导入文献</span></button>
+        <button type="button" class="nav-tab" id="showRecords" data-section="recordsPanel" data-heading="recordsHeading"><svg class="i" aria-hidden="true"><use href="#i-records"/></svg><span>处理记录</span></button>
+        <button type="button" class="nav-tab" id="showDedup" data-section="dedupPanel" data-heading="dedupHeading"><svg class="i" aria-hidden="true"><use href="#i-dedup"/></svg><span>本地 PDF 去重</span></button>
+        <span class="nav-indicator" aria-hidden="true"></span>
+      </div>
+      <div class="nav-meter" aria-hidden="true"><span class="nav-meter-label" id="navPercent">—</span><span class="nav-meter-track"><span class="nav-meter-fill" id="navMeterFill"></span></span></div>
+    </nav>
+
+    <section class="stats reveal" aria-label="处理统计">
+      <div class="stat spot tone-total"><span class="stat-label">文献总数</span><strong class="stat-value" id="totalCount">—</strong><span class="stat-sub" id="totalSub">当前清单</span></div>
+      <div class="stat spot tone-success"><span class="stat-label">下载成功</span><strong class="stat-value green" id="successCount">—</strong><span class="stat-sub" id="successSub">通过 PDF 核验</span></div>
+      <div class="stat spot tone-failed"><span class="stat-label">尝试后失败</span><strong class="stat-value red" id="failedCount">—</strong><span class="stat-sub" id="failedSub">可一键重试</span></div>
+      <div class="stat spot tone-missing"><span class="stat-label">缺少下载入口</span><strong class="stat-value" id="missingCount">—</strong><span class="stat-sub" id="missingSub">无 DOI / PDF 直链</span></div>
+      <div class="stat spot tone-pending"><span class="stat-label">待处理 / 处理中</span><strong class="stat-value" id="pendingCount">—</strong><span class="stat-sub" id="pendingSub">等待开始</span></div>
+    </section>
+
+    <section id="queuePanel" class="panel control-panel reveal" aria-labelledby="queueHeading">
+      <div class="section-heading progress-heading">
+        <div><p class="kicker">Queue</p><h2 class="display" id="queueHeading" tabindex="-1">下载队列</h2></div>
+        <div class="progress-figure"><span class="progress-percent" id="progressPercent">0%</span><span id="progressLabel" class="muted"></span></div>
+      </div>
+      <div class="meter" aria-hidden="true"><span class="meter-seg meter-ok" id="meterOk"></span><span class="meter-seg meter-fail" id="meterFail"></span></div>
+      <progress id="progress" class="sr-only" value="0" max="1" aria-label="已处理进度"></progress>
+      <div class="now" id="nowCard" data-mode="idle">
+        <span class="now-mark" aria-hidden="true">
+          <svg class="enso" viewBox="0 0 48 48" focusable="false"><path class="enso-path" pathLength="100" d="M33.6 8.9C27 4.6 17.1 5.7 11.4 11.7 5.4 18 5 28.6 10.6 35.2c5.7 6.8 16.6 8.4 24 3.6 7.7-5 10.4-15.6 5.9-23.6-1.1-2-2.6-3.9-4.3-5.2"/></svg>
+          <span class="now-dot"></span>
+        </span>
+        <div class="now-text">
+          <p id="current" class="current" aria-live="polite">正在加载文献清单…</p>
+          <p id="activity" class="activity" aria-live="off"></p>
+        </div>
+      </div>
+      <div class="empty-state" id="emptyQueue" hidden>
+        <div class="empty-copy">
+          <h3 class="display">还没有文献清单</h3>
+          <p>导入题录或 DOI 列表后，这里会显示整体进度、当前处理的文献和每一步的等待时间。</p>
+        </div>
+        <ol class="steps">
+          <li><span class="step-no display">壹</span><b>导入题录</b><small>RIS · NBIB · CSV · DOI</small></li>
+          <li><span class="step-no display">贰</span><b>批量获取</b><small>逐条检索与下载</small></li>
+          <li><span class="step-no display">叁</span><b>核验文件</b><small>PDF 类型与大小</small></li>
+          <li><span class="step-no display">肆</span><b>导出补齐</b><small>Word · CSV · TXT</small></li>
+        </ol>
+        <button type="button" id="emptyImport" class="primary"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg><span>导入第一份清单</span></button>
+      </div>
+      <div class="queue-controls">
+        <div class="start-range"><label for="startFromNumber">从第几条开始</label><input id="startFromNumber" type="number" min="1" step="1" value="1"><button id="startFrom">从此序号开始</button><span id="queueRange" class="muted"></span></div>
+        <div class="action-groups">
+          <div class="action-group" role="group" aria-labelledby="groupRun">
+            <span class="group-label" id="groupRun">运行</span>
+            <div class="actions">
+              <button id="start3" class="primary"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span>先试 3 条</span></button>
+              <button id="startAll" class="primary secondary-primary"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span>继续当前范围</span></button>
+              <button id="pause"><svg class="i" aria-hidden="true"><use href="#i-pause"/></svg><span>暂停队列</span></button>
+            </div>
+          </div>
+          <div class="action-group" role="group" aria-labelledby="groupRetry">
+            <span class="group-label" id="groupRetry">补齐</span>
+            <div class="actions">
+              <button id="retry"><svg class="i" aria-hidden="true"><use href="#i-retry"/></svg><span>重试失败项</span></button>
+              <button id="retryRemaining"><svg class="i" aria-hidden="true"><use href="#i-sweep"/></svg><span>继续所有未完成</span></button>
+            </div>
+          </div>
+          <div class="action-group" role="group" aria-labelledby="groupCurrent">
+            <span class="group-label" id="groupCurrent">当前条目</span>
+            <div class="actions">
+              <button id="skipCurrent"><svg class="i" aria-hidden="true"><use href="#i-skip"/></svg><span>跳过当前条目</span></button>
+              <button id="reopenCurrent"><svg class="i" aria-hidden="true"><use href="#i-rebuild"/></svg><span>重建任务页</span></button>
+              <button id="openSite"><svg class="i" aria-hidden="true"><use href="#i-external"/></svg><span class="label">打开搜索网站</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="hints">
+        <li>PDF 保存在 Chrome 默认下载位置的 <code>LiteratureBatch</code> 文件夹。识别到论文或明确未收录时立即处理，无需等待 PDF 预览加载完毕。跳过的条目会留在未获取报告中，可重试。</li>
+        <li class="range-note">起点按本批列表顺序从 1 计数；此前未处理的文献会保留，后面已成功的条目自动跳过。题录导入后自动编号，文件名包含序号、题目；有 DOI 时另加 DOI。</li>
+        <li>整轮结束后直接点击“重试失败项”；想补齐失败、跳过及尚未处理的全部记录，点击“继续所有未完成”。两者都保留已成功项，无需重新导入原清单。没有 DOI 或 PDF 直链的记录仍保留在导出报告中。</li>
+      </ul>
+      <details class="fold settings-fold"><summary><svg class="i" aria-hidden="true"><use href="#i-settings"/></svg>速度与验证设置</summary>
+        <div class="fold-body">
+          <div class="settings">
+            <label>条目间隔（秒）<input id="delaySeconds" type="number" min="0.25" max="120" step="0.25" value="1"></label>
+            <label>首页等待上限（秒）<input id="timeoutSeconds" type="number" min="5" max="300" value="25"></label>
+            <label>结果识别上限（秒）<input id="resultTimeoutSeconds" type="number" min="2" max="120" value="12"></label>
+            <label>下载等待上限（秒）<input id="downloadTimeoutSeconds" type="number" min="30" max="1800" value="300"></label>
+            <button id="saveSettings"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span>保存设置</span></button>
+          </div>
+          <label class="checkbox-label"><input id="autoRobotNo" type="checkbox" checked>遇到本站已识别的“Are you a robot?”页面时，自动点击“No”</label>
+          <label class="checkbox-label"><input id="autoReopenVerification" type="checkbox" checked>验证长时间未完成时，自动重建当前任务页一次</label>
+          <label class="recovery-setting">等待多久再重建（秒）<input id="verificationReopenSeconds" type="number" min="15" max="300" value="45"></label>
+          <p class="note">验证未完成时保留当前 DOI，人工点击后会自动继续。重建只关闭本插件的任务页，不影响其他标签页；新页面仍可能要求验证。每条最多自动重建一次，也可手动重建或跳过。点击“暂停队列”会取消自动继续。普通结果识别超时记为“未确认”，不当作网站未收录。</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="importPanel" class="panel import-panel reveal" aria-labelledby="importHeading">
+      <div class="section-heading">
+        <div><p class="kicker">Import</p><h2 class="display" id="importHeading" tabindex="-1">导入新的文献清单</h2><p class="muted source">RIS · PubMed NBIB / MEDLINE · CSV / TSV · JSON · DOI / PDF 直链文本</p></div>
+        <span class="local-note"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>在本机解析题录</span>
+      </div>
+      <div class="import-grid">
+        <div class="file-zone" id="dropZone">
+          <input id="importFile" type="file" multiple accept=".ris,.nbib,.medline,.csv,.tsv,.json,.txt" aria-describedby="fileHint">
+          <span class="zone-icon" aria-hidden="true"><svg class="i"><use href="#i-file"/></svg></span>
+          <label for="importFile">选择题录文件，可同时选择多个</label>
+          <span class="zone-sub">拖入文件，或点击此处浏览</span>
+          <ul class="file-list" id="fileList" aria-live="polite"></ul>
+          <p class="note" id="fileHint">CSV / JSON 的 pdfUrl、fullTextUrl、url 字段或 RIS 的 L1 可填 PDF 直链。每批最多 20,000 条、15 MB。</p>
+        </div>
+        <div class="paste-zone">
+          <label for="doiText"><svg class="i" aria-hidden="true"><use href="#i-paste"/></svg>或粘贴 DOI / PDF 直链，每行一条</label>
+          <textarea id="doiText" rows="4" placeholder="10.1234/example&#10;https://doi.org/10.5678/example&#10;https://example.org/article.pdf" spellcheck="false"></textarea>
+          <p class="note">同时选择文件并粘贴链接，会合并为同一批次。</p>
+        </div>
+      </div>
+      <p class="note import-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><span>仅自动下载 PDF 直链；普通 HTML 全文入口需人工打开。RIS 的普通 UR 只保留为网页入口。同条记录有 DOI 和 PDF 直链时优先下载直链；返回 HTML、未知类型或过小文件不会记为成功。</span></p>
+      <div class="import-options"><button id="previewImport"><svg class="i" aria-hidden="true"><use href="#i-eye"/></svg><span>解析并预览</span></button><label class="checkbox-label"><input id="dedupeImport" type="checkbox">题名及 DOI / URL 都相同，仅保留第一条</label></div>
+      <div id="importPreview" class="import-preview" hidden>
+        <p id="importSummary" class="import-summary" aria-live="polite"></p>
+        <div class="table-wrap"><table><thead><tr><th>题目预览（前 5 条）</th><th>DOI / PDF 直链</th></tr></thead><tbody id="importPreviewBody"></tbody></table></div>
+        <details id="importWarningDetails" class="fold" hidden><summary id="importWarningSummary">导入提示</summary><div class="fold-body"><ul id="importWarnings"></ul></div></details>
+        <p id="importStatus" class="note import-status" role="status" aria-live="polite"></p>
+        <div class="actions"><button id="importAndRun" class="primary"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span>导入并开始全部</span></button><button id="importButton"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg><span>仅导入清单</span></button></div>
+        <p class="note">导入建立新队列；本扩展已保存的相同题名及 DOI / PDF 链接的成功记录会保留，避免重复下载。旧队列中未导入的文献不在新队列中，请先导出报告。重试原清单请优先使用上方重试按钮。也支持重新导入本插件导出的失败 TXT 或“未获取 CSV”。</p>
+      </div>
+    </section>
+
+    <section id="recordsPanel" class="panel records-panel reveal" aria-labelledby="recordsHeading">
+      <div class="section-heading">
+        <div><p class="kicker">Records</p><h2 class="display" id="recordsHeading" tabindex="-1">文献与处理记录</h2><p id="sourceName" class="muted source"></p></div>
+        <div class="export-bar" role="group" aria-labelledby="groupExport">
+          <span class="group-label" id="groupExport">导出</span>
+          <div class="actions export-actions">
+            <button id="exportWord"><svg class="i" aria-hidden="true"><use href="#i-word"/></svg><span>未获取 Word</span></button>
+            <button id="exportRetryCsv"><svg class="i" aria-hidden="true"><use href="#i-retry"/></svg><span>未获取 CSV（可重导）</span></button>
+            <button id="exportUnresolved"><svg class="i" aria-hidden="true"><use href="#i-txt"/></svg><span>未获取 TXT</span></button>
+            <button id="exportFailed"><svg class="i" aria-hidden="true"><use href="#i-failed"/></svg><span>失败项 TXT</span></button>
+            <button id="exportCsv"><svg class="i" aria-hidden="true"><use href="#i-csv"/></svg><span>完整 CSV</span></button>
+            <button id="exportJson"><svg class="i" aria-hidden="true"><use href="#i-json"/></svg><span>记录 JSON</span></button>
+          </div>
+        </div>
+      </div>
+      <p class="note">“未获取全文”清单分别列出：尝试后失败、缺少 DOI / PDF 直链、尚未处理和处理中。成功表示浏览器完成下载并通过文件类型及大小检查，不代表已核对论文内容。</p>
+      <div class="filters">
+        <label class="search-label"><span class="sr-only">搜索题目、DOI 或链接</span><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input id="query" type="search" placeholder="搜索题目、DOI、链接或原始编号"></label>
+        <div class="status-chips" id="statusFilter" role="radiogroup" aria-label="筛选状态">
+          <label class="chip"><input type="radio" name="statusFilter" value="all" checked><span>全部<b data-count="all"></b></span></label>
+          <label class="chip tone-success"><input type="radio" name="statusFilter" value="success"><span>下载成功<b data-count="success"></b></span></label>
+          <label class="chip tone-failed"><input type="radio" name="statusFilter" value="failed"><span>尝试后失败<b data-count="failed"></b></span></label>
+          <label class="chip tone-missing"><input type="radio" name="statusFilter" value="missing_doi"><span>缺少入口<b data-count="missing_doi"></b></span></label>
+          <label class="chip tone-pending"><input type="radio" name="statusFilter" value="pending"><span>待处理<b data-count="pending"></b></span></label>
+          <label class="chip tone-active"><input type="radio" name="statusFilter" value="active"><span>处理中<b data-count="active"></b></span></label>
+        </div>
+      </div>
+      <div class="table-wrap"><table class="records"><thead><tr><th class="index-col">原编号</th><th>论文题目 / DOI / 链接</th><th class="status-col">状态</th><th class="reason-col">处理说明</th></tr></thead><tbody id="papersBody"></tbody></table></div>
+      <div class="pagination"><span id="pageInfo" class="muted"></span><div><button id="prevPage">上一页</button><button id="nextPage">下一页</button></div></div>
+    </section>
+
+    <section id="dedupPanel" class="panel cleanup-panel reveal" aria-labelledby="dedupHeading">
+      <div class="section-heading">
+        <div><p class="kicker">Tidy up</p><h2 class="display" id="dedupHeading" tabindex="-1">本地 PDF 去重</h2><p id="dedupFolder" class="muted source">先选择存放 PDF 的文件夹，例如 LiteratureBatch。</p></div>
+        <span class="local-note"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>按完整文件内容核对</span>
+      </div>
+      <p class="note">只扫描所选文件夹第一层；保留原件，仅清理内容完全一致的 (1)、(2) 等 PDF 副本。不同内容、没有原件或超过 128 MB 的文件会保留。清理期间请暂停下载，不要移动或修改这些文件。</p>
+      <div class="actions cleanup-actions">
+        <button id="chooseDedupFolder" class="primary"><svg class="i" aria-hidden="true"><use href="#i-folder"/></svg><span>选择文件夹并扫描</span></button>
+        <button id="rescanDedup" disabled><svg class="i" aria-hidden="true"><use href="#i-retry"/></svg><span>重新扫描</span></button>
+        <button id="cancelDedup" disabled><svg class="i" aria-hidden="true"><use href="#i-stop"/></svg><span>停止扫描 / 清理</span></button>
+        <button id="deleteDuplicates" class="danger" disabled><svg class="i" aria-hidden="true"><use href="#i-trash"/></svg><span>删除已确认重复副本</span></button>
+      </div>
+      <p id="dedupStatus" class="cleanup-status" aria-live="polite">文件夹权限仅在你选择后授予；不会自动扫描电脑中的其他位置。</p>
+      <p id="dedupSummary" class="import-summary"></p>
+      <div class="table-wrap"><table><thead><tr><th>可清理的重复副本</th><th>保留的原件</th><th>大小</th></tr></thead><tbody id="dedupBody"><tr><td colspan="3" class="empty">扫描后在这里核对重复文件。</td></tr></tbody></table></div>
+      <ul id="dedupDetails" class="cleanup-details"></ul>
+      <p class="note deletion-note">删除是永久删除，不会进入回收站。点击删除后仍会逐个重新比对原件与副本内容。</p>
+    </section>
+
+    <section class="panel log-panel reveal" aria-label="运行日志"><details class="fold"><summary><svg class="i" aria-hidden="true"><use href="#i-log"/></svg>运行日志</summary><div class="fold-body"><ol id="logs"></ol></div></details></section>
+
+    <footer class="colophon">
+      <p>队列和进度保存在此浏览器的扩展本地存储。关闭 Chrome 后，下次打开需点击继续。卸载扩展会清除进度，请先导出记录。</p>
+      <p>题录只在本机解析，不上传到任何服务器。</p>
+    </footer>
+  </main>
+
+  <div id="message" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="confirmDialog" class="dialog" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+    <form method="dialog">
+      <span class="dialog-seal display" aria-hidden="true">确</span>
+      <h2 class="display" id="confirmTitle">请确认</h2>
+      <p id="confirmBody"></p>
+      <div class="dialog-actions">
+        <button value="cancel" id="confirmCancel">取消</button>
+        <button value="ok" id="confirmOk" class="primary">确认</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

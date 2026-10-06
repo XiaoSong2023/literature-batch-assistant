@@ -1,0 +1,27 @@
+{
+  "zip_crc": "passed",
+  "all_xml": "parsed",
+  "python_docx": "opened",
+  "unresolved_records": 4,
+  "external_links": 8,
+  "page_mm": [
+    210,
+    297
+  ],
+  "tables": 0,
+  "render_engine": "Microsoft Word COM ExportAsFixedFormat",
+  "render_pages": 2,
+  "visual_review": [
+    {
+      "page": 1,
+      "result": "passed",
+      "notes": "Chinese, English, escaped <A&B>, complete signed URL wrapping, headings and footer readable; no clipping or overlap"
+    },
+    {
+      "page": 2,
+      "result": "passed",
+      "notes": "Final record stays together; footer correct; remaining whitespace is normal end-of-document space"
+    }
+  ],
+  "unit_tests": "5 passed, including 5000-record export"
+}

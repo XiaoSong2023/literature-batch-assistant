@@ -1,0 +1,20 @@
+PMID- 12345678
+OWN - NLM
+TI  - The Role of DOI Metadata in a Multicentre
+      Randomised Study.
+AB  - Background refers to 10.1234/not-this-paper and other articles.
+      This abstract must not supply the record DOI.
+LID - S1234-5678(26)12345-6 [pii]
+AID - 10.1000/ABC.2026
+      [doi]
+AID - S1234-5678(26)12345-6 [pii]
+
+PMID- 87654321
+TI  - A Paper with No DOI.
+AID - 10.1234/looks-like-doi-but-is-pii [pii]
+AB  - A reference DOI is 10.1234/reference.
+
+PMID- 45678901
+TI  - Duplicate DOI Record.
+LID - 10.1000/abc.2026 [doi]
+AID - 10.1000/abc.2026 [doi]

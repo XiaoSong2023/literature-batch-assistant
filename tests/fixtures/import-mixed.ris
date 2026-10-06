@@ -1,0 +1,29 @@
+TY  - JOUR
+TI  - β-Catenin in 肿瘤:
+      A Multicentre Study
+DO  - 10.1002/(SICI)1097-0258(19981230)17:24<2747::AID-SIM953>3.0.CO;2-A
+UR  - https://doi.org/10.1002%2F(SICI)1097-0258(19981230)17%3A24%3C2747%3A%3AAID-SIM953%3E3.0.CO%3B2-A
+AB  - Cites a different study, DOI 10.1234/should-not-be-selected.
+ER  -
+
+TY  - JOUR
+T1  - A Study without an Article DOI
+AB  - Background literature includes https://doi.org/10.1234/reference-only
+UR  - https://publisher.example/article/10.1234/not-a-doi-url
+ER  -
+
+TY  - JOUR
+TI  - Wrapped Identifier
+DO  - 10.1234/very-long-
+      suffix-2026
+ER  -
+
+TY  - JOUR
+TI  - Identifier Conflict
+DO  - 10.1234/first
+DO  - 10.1234/second
+ER  -
+
+TY  - JOUR
+TI  - Last Record Lacking ER
+UR  - https://doi.org/10.1234/first

@@ -1,0 +1,20 @@
+{
+  "name": "literature-batch-assistant",
+  "version": "1.5.0",
+  "private": true,
+  "description": "文献全文批量助手：按题录清单批量获取 PDF、核验下载结果、导出未获取文献的 Chrome 扩展。",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-vm-modules --test tests/*.test.mjs",
+    "test:mv3": "node tests/mv3-url-smoke.mjs && node tests/mv3-speed-smoke.mjs && node tests/mv3-v14-retry-smoke.mjs",
+    "screenshots": "node tools/capture_screenshots.mjs",
+    "icons": "node tools/build_icons.mjs",
+    "font": "python tools/build_display_font.py",
+    "release": "python tools/build_release.py"
+  },
+  "devDependencies": {
+    "pdf-lib": "^1.17.1",
+    "playwright": "^1.55.0"
+  }
+}
