@@ -101,7 +101,7 @@ function render() {
   $('meterFail').style.setProperty('--w', `${eligible ? failed / eligible * 100 : 0}%`);
   $('navMeterFill').style.setProperty('--p', `${eligible ? attempted / eligible * 100 : 0}%`);
   $('runBadge').textContent = empty ? '尚未导入文献' : state.waitingForVerification ? '等待人工验证 · 完成后自动继续' : state.running ? (selectedIds ? '仅重试失败项' : '队列运行中') : rangeUnfinished ? '已暂停 / 等待开始' : selectedIds ? '本轮失败项处理完成' : state.startFromNumber > 1 ? '当前范围处理完成' : '本轮处理完成';
-  $('runBadge').className = `badge${state.running ? ' running' : state.waitingForVerification ? ' waiting' : empty ? ' empty' : rangeUnfinished ? '' : ' done'}`;
+  $('runBadge').className = `badge${state.running ? ' running' : state.waitingForVerification ? ' waiting' : empty ? ' is-empty' : rangeUnfinished ? '' : ' done'}`;
   $('queuePanel').classList.toggle('is-running', Boolean(state.running));
   $('queuePanel').classList.toggle('is-empty', empty);
   $('emptyQueue').hidden = !empty;

@@ -421,6 +421,7 @@ test('an empty queue shows the getting-started state instead of controls', async
   assert.equal(await page.locator('#emptyQueue').isVisible(), true);
   assert.equal(await page.locator('.queue-controls').isVisible(), false);
   assert.equal(await page.locator('#runBadge').textContent(), '尚未导入文献');
+  assert.ok((await page.locator('#runBadge').boundingBox()).height < 60, 'The empty badge keeps its pill shape');
   assert.match(await page.locator('#papersBody').textContent(), /导入文献后/);
   await page.locator('#emptyImport').click();
   assert.equal(await page.evaluate(() => document.activeElement.id), 'importHeading');
