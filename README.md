@@ -20,7 +20,7 @@ Chrome 扩展（Manifest V3）· 题录只在本机解析 · 和纸与朱印风�
 
 <p align="center">
   <a href="https://github.com/XiaoSong2023/literature-batch-assistant/releases/download/v1.5.0/literature-batch-assistant-promo.mp4"><img src="docs/screenshots/promo-poster.jpg" width="720" alt="产品介绍视频封面：朱印「文献」与标题「文献全文批量助手」"></a><br>
-  <sub>▶ 点击观看 67 秒产品介绍视频（MP4，32 MB）。界面画面录自本扩展，使用虚构示例数据，下载过程已加速。</sub>
+  <sub>▶ 点击观看 94 秒产品介绍视频（MP4，42 MB，中文旁白）。界面画面录自本扩展，使用虚构示例数据，下载过程已加速。</sub>
 </p>
 
 ## 功能
